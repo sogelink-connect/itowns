@@ -32,6 +32,14 @@ void main() {
 #include <map_particle_fragment>
 #include <color_fragment>
 
+    #if defined(HQ_DEPTH_PASS) || defined(HQ_WEIGHTED)
+        // HQ passes ignore the color alpha (depth-only / weight overwrites
+        // it): hidden points (e.g. masked classifications) must be discarded.
+        if (diffuseColor.a <= 0.0) {
+            discard;
+        }
+    #endif
+
 #include <alphatest_fragment>
 #include <alphahash_fragment>
 
@@ -45,4 +53,13 @@ void main() {
 #include <fog_fragment>
 #include <premultiplied_alpha_fragment>
 
+    #ifdef HQ_WEIGHTED
+        // Potree/Schuetz HQ-splats weighted attribute pass: accumulate
+        // color and a radial weight (premultiplied) into an additively
+        // blended target; the normalization pass later divides by the
+        // accumulated weight.
+        float weightDist = length(gl_PointCoord - 0.5) * 2.0;
+        float weight = pow(max(0.0, 1.0 - weightDist), 1.5);
+        gl_FragColor = vec4(gl_FragColor.rgb * weight, weight);
+    #endif
 }
