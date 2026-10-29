@@ -32,6 +32,14 @@ void main() {
 #include <map_particle_fragment>
 #include <color_fragment>
 
+    #if defined(HQ_DEPTH_PASS) || defined(HQ_WEIGHTED)
+        // HQ passes ignore the color alpha (depth-only / weight overwrites
+        // it): hidden points (e.g. masked classifications) must be discarded.
+        if (diffuseColor.a <= 0.0) {
+            discard;
+        }
+    #endif
+
 #include <alphatest_fragment>
 #include <alphahash_fragment>
 
