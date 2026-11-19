@@ -33,8 +33,9 @@ void main() {
 #include <color_fragment>
 
     #if defined(HQ_DEPTH_PASS) || defined(HQ_WEIGHTED)
-        // HQ passes ignore the color alpha (depth-only / weight overwrites
-        // it): hidden points (e.g. masked classifications) must be discarded.
+        // Fully transparent points (e.g. masked classifications) must be
+        // discarded: they would write depth, and the weighted pass
+        // overwrites the alpha with the splat weight.
         if (diffuseColor.a <= 0.0) {
             discard;
         }

@@ -222,6 +222,7 @@ class HQSplatsPass extends Pass {
         u.tScene.value = inputBuffer.texture;
         u.tDepth.value = this._depthTarget.depthTexture;
         u.tWeighted.value = this._attributeTarget.texture;
+        u.tOpacity.value = this._depthTarget.texture;
         u.uEdlEnabled.value = this._edlPass.enabled;
         u.edlStrength.value = this._edlPass.strength;
         u.kernelRadius.value = this._edlPass.kernelRadius;
