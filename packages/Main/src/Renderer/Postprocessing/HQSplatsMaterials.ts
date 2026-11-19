@@ -21,7 +21,12 @@ function createHQSplatMaterials(): HQSplatMaterials {
     // @ts-expect-error PointsMaterial is not typed yet
     depthMaterial.shape = PNTS_SHAPE.CIRCLE;
     depthMaterial.defines.HQ_DEPTH_PASS = 1;
-    depthMaterial.colorWrite = false;
+    // The color target stores the alpha (layer opacity × classification
+    // opacity) of the front-most splat, used by the normalization pass to
+    // blend point clouds over the scene. Transparent so that the shader
+    // keeps the alpha (no OPAQUE define), but not blended.
+    depthMaterial.transparent = true;
+    depthMaterial.blending = THREE.NoBlending;
     depthMaterial.depthTest = true;
     depthMaterial.depthWrite = true;
     depthMaterial.needsUpdate = true;

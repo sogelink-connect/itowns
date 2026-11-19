@@ -24,6 +24,7 @@ const fragmentShader = /* glsl */ `
 uniform sampler2D tScene;
 uniform sampler2D tDepth;
 uniform sampler2D tWeighted;
+uniform sampler2D tOpacity;
 
 uniform bool uEdlEnabled;
 uniform vec2 kernel[KERNEL_SIZE];
@@ -56,7 +57,10 @@ void main() {
         color = color * computeEDL(vUv);
     }
 
-    gl_FragColor = vec4(color, 1.0);
+    // Point cloud opacity: alpha of the front-most splat, written by the
+    // depth pre-pass (the weighted pass overwrites alpha with the weight).
+    float opacity = texture2D(tOpacity, vUv).a;
+    gl_FragColor = vec4(mix(texture2D(tScene, vUv).rgb, color, opacity), 1.0);
     gl_FragDepth = depth;
     #include <colorspace_fragment>
 }
@@ -78,6 +82,7 @@ const MakeHQSplatsShader = (
         tScene: { value: null },
         tDepth: { value: null },
         tWeighted: { value: null },
+        tOpacity: { value: null },
         uEdlEnabled: { value: false },
         kernel: { value: generateKernel(kernelSize) },
         resolution: { value: new Vector2(width, height) },
